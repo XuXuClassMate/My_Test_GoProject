@@ -3,11 +3,10 @@ package main
 import (
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 )
 
-func main() {
+func apiTest() {
 
 	url := "http://8.130.94.143:12345/dolphinscheduler/login?userName=admin&userPassword=dolphinscheduler123"
 	method := "POST"
@@ -42,7 +41,7 @@ func main() {
 		}
 	}(res.Body)
 
-	body, err := ioutil.ReadAll(res.Body)
+	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		fmt.Println(err)
 		return

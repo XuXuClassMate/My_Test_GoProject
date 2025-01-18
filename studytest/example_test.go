@@ -1,8 +1,9 @@
 package main
 
 import (
-	http "gopkg.in/gavv/httpexpect.v2"
 	"testing"
+
+	http "gopkg.in/gavv/httpexpect.v2"
 )
 
 type Response http.Response

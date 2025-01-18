@@ -4,7 +4,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func main() {
+func logMain() {
 	log := logrus.New()
 	log.SetFormatter(&logrus.TextFormatter{
 		//DisableColors: true,

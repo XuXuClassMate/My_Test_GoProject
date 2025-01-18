@@ -2,7 +2,7 @@ package main
 
 import "fmt"
 
-func main() {
+func printMessages() {
 	//print:
 	fmt.Println("Hello, World!")
 	fmt.Println("菜鸟旭旭，开始学Go语言")

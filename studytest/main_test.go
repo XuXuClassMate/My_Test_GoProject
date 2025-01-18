@@ -2,9 +2,10 @@ package main
 
 import (
 	"fmt"
+	"testing"
+
 	"github.com/sirupsen/logrus"
 	http "gopkg.in/gavv/httpexpect.v2"
-	"testing"
 )
 
 func TestQueryBuildVersion(t *testing.T) {
@@ -41,9 +42,4 @@ func TestQueryBuildVersion(t *testing.T) {
 	// 打印响应原始数据
 	fmt.Println("response：", data1)
 
-}
-
-func main() {
-	t := testing.T{}
-	TestQueryBuildVersion(&t) // Pass the address of the variable
 }
