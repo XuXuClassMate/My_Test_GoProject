@@ -5,6 +5,7 @@
 *.so
 *.dylib
 *.DS_Store
+*.vscode
 
 # Test binary, build with `go study -c`
 *.test
