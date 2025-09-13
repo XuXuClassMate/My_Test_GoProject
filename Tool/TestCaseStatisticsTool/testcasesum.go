@@ -20,7 +20,7 @@ func init() {
 
 // ---------------- XMind JSON structure ----------------
 type XMindJSON struct {
-	RootTopic *Topic `json:"rootTopic"`
+	RootTopic Topic `json:"rootTopic"`
 }
 
 type Topic struct {
@@ -29,26 +29,25 @@ type Topic struct {
 }
 
 type Children struct {
-	Attached []*Topic `json:"attached"`
+	Attached []Topic `json:"attached"`
 }
 
 // ---------------- XML Structure (Old Versions of XMind) ----------------
 type XMap struct {
 	Sheets []Sheet `xml:"sheet"`
 }
+
 type Sheet struct {
 	Topic TopicXML `xml:"topic"`
 }
+
 type TopicXML struct {
 	Title  string     `xml:"title"`
 	Topics []TopicXML `xml:"topics>topic"`
 }
 
 // ---------------- Statistical Logic ----------------
-func countJSONTopic(t *Topic, total, p0, p1 *int) {
-	if t == nil {
-		return
-	}
+func countJSONTopic(t Topic, total, p0, p1 *int) {
 	// Leaf node: no child nodes
 	if len(t.Children.Attached) == 0 {
 		*total++
@@ -59,6 +58,7 @@ func countJSONTopic(t *Topic, total, p0, p1 *int) {
 			*p1++
 		}
 	}
+
 	for _, child := range t.Children.Attached {
 		countJSONTopic(child, total, p0, p1)
 	}
@@ -74,6 +74,7 @@ func countXMLTopic(t TopicXML, total, p0, p1 *int) {
 			*p1++
 		}
 	}
+
 	for _, child := range t.Topics {
 		countXMLTopic(child, total, p0, p1)
 	}
@@ -84,6 +85,7 @@ func main() {
 	if len(os.Args) < 2 {
 		log.Fatal("Please provide the path to the .xmind file")
 	}
+
 	xmindFile := os.Args[1]
 	start := time.Now()
 
@@ -98,10 +100,12 @@ func main() {
 	var total, p0, p1 int
 	found := false
 
+	// Try to find and parse content.json first (newer XMind format)
 	for _, f := range r.File {
 		if filepath.Base(f.Name) == "content.json" {
 			found = true
 			log.Println("Found content.json and is parsing it....")
+
 			rc, _ := f.Open()
 			data, _ := io.ReadAll(rc)
 			rc.Close()
@@ -110,8 +114,10 @@ func main() {
 			if err := json.Unmarshal(data, &arr); err != nil {
 				log.Fatalf("Parsing JSON failed: %v", err)
 			}
+
 			for _, sheet := range arr {
-				if sheet.RootTopic != nil {
+				// Check if the topic has a title (indicating it's not empty)
+				if sheet.RootTopic.Title != "" {
 					countJSONTopic(sheet.RootTopic, &total, &p0, &p1)
 				}
 			}
@@ -119,10 +125,12 @@ func main() {
 		}
 	}
 
+	// If content.json not found, try content.xml (older XMind format)
 	if !found {
 		for _, f := range r.File {
 			if filepath.Base(f.Name) == "content.xml" {
-				log.Println("Found content.json, parsing...")
+				log.Println("Found content.xml parsing...")
+
 				rc, _ := f.Open()
 				data, _ := io.ReadAll(rc)
 				rc.Close()
@@ -131,6 +139,7 @@ func main() {
 				if err := xml.Unmarshal(data, &xm); err != nil {
 					log.Fatalf("Failed to parse XML: %v", err)
 				}
+
 				for _, sheet := range xm.Sheets {
 					countXMLTopic(sheet.Topic, &total, &p0, &p1)
 				}
@@ -156,5 +165,4 @@ func main() {
 	fmt.Println("===================================")
 
 	log.Printf("Done in %.3fs", time.Since(start).Seconds())
-
 }
